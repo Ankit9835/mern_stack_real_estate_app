@@ -11,6 +11,23 @@ export const welcome = (req,res) => {
     })
 }
 
+const tokenFunction = (req,res,user) => {
+    const newToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
+        expiresIn:'1h'
+    })
+    const refreshToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
+        expiresIn:'7d'
+    })
+    user.password = undefined
+    user.resetCode = undefined
+    
+    return res.json({
+        newToken,
+        refreshToken,
+        user
+    })
+}   
+
 export const preRegister = async (req,res) => {
     try {
         const {email,password} = req.body
@@ -93,20 +110,7 @@ export const register = async (req,res) => {
             email,
             password:hash,
         })
-        const newToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
-            expiresIn:'1h'
-        })
-        const refreshToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
-            expiresIn:'7d'
-        })
-        user.password = undefined
-        user.resetCode = undefined
-
-        return res.json({
-            newToken,
-            refreshToken,
-            user
-        })
+        tokenFunction(req,res,user)
     } catch (error) {
         console.log(error)
     }
@@ -133,24 +137,108 @@ export const login = async (req,res) => {
                 error: "wrong password"
             })
         }
-        const newToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
-            expiresIn:'1h'
-        })
-        const refreshToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
-            expiresIn:'7d'
-        })
-
-        user.password = undefined
-        user.resetCode = undefined
-
-        return res.json({
-            newToken,
-            refreshToken,
-            user
-        })
+        tokenFunction(req,res,user)
     } catch (error) {
         console.log(error)
         return res.json({
+            error:'Something went wrong'
+        })
+    }
+}
+
+export const forgotPassword = async (req,res) => {
+    try {
+        const {email} = req.body
+        if(!email){
+            res.json({
+                error:'Email is required'
+            })
+        }
+        const resetCode = nanoid()
+        const user = await User.findOne({email})
+        if(!user){
+            res.json({
+                error:'Email does not exists'
+            })
+        }
+        user.resetCode = resetCode
+        user.save()
+        const token = jwt.sign({resetCode},process.env.JWT_SECRET,{
+            expiresIn:'1h'
+        })
+
+        const SESConfig = {
+            apiVersion: "2010-12-01",
+            accessKeyId: process.env.AWS_ACCESS_KEY,      // should be:  process.env.AWS_ACCESS_ID
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,  
+            region: "ap-southeast-2"
+        }
+        const AWSSES = new SES(SESConfig)
+        AWSSES.sendEmail(
+            {
+              Source: process.env.EMAIL_FROM,
+              Destination: {
+                ToAddresses: ["ankitsinha874@gmail.com"],
+              },
+              Message: {
+                Body: {
+                  Html: {
+                    Charset: "UTF-8",
+                    Data: `
+                      <h1>Welcome to Realist App</h1>
+                      <p> Please click the link below to activate your account </p>
+                      <a href="${process.env.URL}/auth/activate-account/${token}"> Activate Your Account </a>
+                    `,
+                  },
+                },
+                Subject: {
+                  Charset: "UTF-8",
+                  Data: "Welcome to Realist",
+                },
+              },
+            },
+            (err, data) => {
+              if (err) {
+                console.log(err);
+                return res.json({ ok: false });
+              } else {
+                console.log(data);
+                return res.json({ ok: true });
+              }
+            }
+          );
+        } 
+
+     catch (error) {
+        console.log(error)
+        res.json({
+            error:'Something went wrong'
+        })
+    }
+}
+
+export const accessAccount = async (req,res) => {
+    try {
+        const {resetCode} = jwt.verify(req.body.resetCode, process.env.JWT_SECRET)
+        const user = await User.findOneAndUpdate({resetCode}, {resetCode: ''})
+
+        tokenFunction(req,res,user)
+    } catch (error) {
+        console.log(error)
+        res.json({
+            error:'Something went wrong'
+        })
+    }
+}
+
+export const refreshToken = async (req,res) => {
+    try {
+        const {_id} = jwt.verify(req.headers.refresh_token, process.env.JWT_SECRET)
+        const user = await User.findById(_id)
+        tokenFunction(req,res,user)
+    } catch (error) {
+        console.log(error)
+        res.json({
             error:'Something went wrong'
         })
     }
