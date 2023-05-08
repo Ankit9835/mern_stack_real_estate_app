@@ -243,3 +243,67 @@ export const refreshToken = async (req,res) => {
         })
     }
 }
+
+export const currentUser = async (req,res) => {
+    try {
+        const user = await User.findById(req.user._id)
+        user.password = undefined
+        user.resetCode = undefined
+        res.json(user)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const userProfile = async (req,res) => {
+    try {
+        const user = await User.findOne({username:req.params.profile})
+        if(!user){
+            return res.json({
+                error:'user not found with the given username'
+            })
+        }
+        user.password = undefined
+        user.resetCode = undefined
+        res.json(user)
+    } catch (error) {
+        res.json({
+            error:error.message
+        })
+    }
+}
+
+export const updatePassword = async (req,res) => {
+    try {
+        const {password} = req.body
+        if(!password){
+            return res.json({
+                error:'password required'
+            })
+        }
+
+        if(password.length <= 6){
+            return res.json({
+                error:'password should be min 7 character'
+            })
+        }
+        const user = await User.findByIdAndUpdate(req.user._id, {password: await hashedPassword(password)})
+        return res.json(user)
+    } catch (error) {
+        console.log(error)
+        return res.json(error)
+    }
+}
+
+export const profileUpdate = async (req,res) => {
+    try {
+        const user = await  User.findByIdAndUpdate(req.user._id, req.body, {
+            new:true
+        })
+        user.password = undefined
+        user.resetCode = undefined
+        res.json(user)
+    } catch (error) {
+        console.log(error)
+    }
+}
