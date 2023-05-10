@@ -1,36 +1,57 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/auth'
 
 const Main = () => {
+  const [auth,setAuth] = useAuth()
+  const navigate = useNavigate()
+  const logout = () => {
+    setAuth({
+      user: null,
+      newToken: "",
+      refreshToken: "",
+    })
+    localStorage.removeItem('auth')
+    navigate('/')
+  }
+  const loggedIn = auth?.user !== null && auth?.newToken !== null && auth.refreshToken !== null
   return (
     <nav className="nav d-flex justify-content-between lead">
-    <NavLink className="nav-link" aria-current="page" to="/">
-      Home
-    </NavLink>
-    <NavLink className="nav-link" to="/login">
-      Login
-    </NavLink>
-    <NavLink className="nav-link" to="/register">
-      Register
-    </NavLink>
+      {!loggedIn &&
+      <>
+         <NavLink className="nav-link" aria-current="page" to="/">
+          Home
+        </NavLink>
+        <NavLink className="nav-link" to="/login">
+          Login
+        </NavLink>
+        <NavLink className="nav-link" to="/register">
+          Register
+        </NavLink>
+      </>
+      }
 
+{loggedIn && 
     <div className="dropdown">
       <li>
         <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
           User
         </a>
-        <ul className="dropdown-menu">
-          <li>
-            <NavLink className="nav-link" to="/dashboard">
-              Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <a className="nav-link">Logout</a>
-          </li>
-        </ul>
+              <ul className="dropdown-menu">
+                <li>
+                  <NavLink className="nav-link" to="/dashboard">
+                    Dashboard
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink onClick={logout} className="nav-link">Logout</NavLink>
+                </li>
+            </ul>
+         
+        
       </li>
     </div>
+  }
   </nav>
   )
 }

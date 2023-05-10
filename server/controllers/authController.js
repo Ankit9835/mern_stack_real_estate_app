@@ -37,7 +37,7 @@ export const preRegister = async (req,res) => {
         if(!password){
             return res.json({error:'Password is required'})
         }
-        if(password || password.length < 6){
+        if(password.length < 6){
             return res.json({error:'Password is required with a minimum character of 6'})
         }
         const user = await User.findOne({email})
@@ -104,13 +104,20 @@ export const register = async (req,res) => {
         console.log('token',token)
         const {email,password} = jwt.verify(token, process.env.JWT_SECRET)
         //console.log('decoded',decoded)
-        const hash = await hashedPassword(password)
-        const user = await  User.create({
-            username:nanoid(6),
-            email,
-            password:hash,
-        })
-        tokenFunction(req,res,user)
+        if(email && password){
+            const hash = await hashedPassword(password)
+            const user = await  User.create({
+                username:nanoid(6),
+                email,
+                password:hash,
+            })
+            tokenFunction(req,res,user)
+        } else {
+            return res.json({
+                suuccess:false,
+                error:'token not verified'
+            })
+        }
     } catch (error) {
         console.log(error)
     }
@@ -149,6 +156,7 @@ export const login = async (req,res) => {
 export const forgotPassword = async (req,res) => {
     try {
         const {email} = req.body
+        console.log(req.body.email)
         if(!email){
             res.json({
                 error:'Email is required'
@@ -187,7 +195,7 @@ export const forgotPassword = async (req,res) => {
                     Data: `
                       <h1>Welcome to Realist App</h1>
                       <p> Please click the link below to activate your account </p>
-                      <a href="${process.env.URL}/auth/activate-account/${token}"> Activate Your Account </a>
+                      <a href="${process.env.URL}/auth/access-account/${token}"> Activate Your Account </a>
                     `,
                   },
                 },
@@ -208,20 +216,18 @@ export const forgotPassword = async (req,res) => {
             }
           );
         } 
-
-     catch (error) {
-        console.log(error)
-        res.json({
-            error:'Something went wrong'
-        })
-    }
+        catch (error) {
+            console.log(error)
+            res.json({
+                error:'Something went wrong'
+            })
+        }
 }
 
 export const accessAccount = async (req,res) => {
     try {
         const {resetCode} = jwt.verify(req.body.resetCode, process.env.JWT_SECRET)
         const user = await User.findOneAndUpdate({resetCode}, {resetCode: ''})
-
         tokenFunction(req,res,user)
     } catch (error) {
         console.log(error)
