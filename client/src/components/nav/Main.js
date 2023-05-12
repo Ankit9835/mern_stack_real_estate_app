@@ -15,6 +15,14 @@ const Main = () => {
     navigate('/')
   }
   const loggedIn = auth?.user !== null && auth?.newToken !== null && auth.refreshToken !== null
+
+  const isLoggedIn = () => {
+    if(loggedIn){
+      navigate('/ad/create')
+    } else{
+      navigate('/')
+    }
+  }
   return (
     <nav className="nav d-flex justify-content-between lead">
       {!loggedIn &&
@@ -31,11 +39,15 @@ const Main = () => {
       </>
       }
 
+       <a className="nav-link" aria-current="page" onClick={isLoggedIn}>
+          Post Ad
+        </a>
+
 {loggedIn && 
     <div className="dropdown">
       <li>
         <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-          User
+          {loggedIn && auth?.user?.username}
         </a>
               <ul className="dropdown-menu">
                 <li>
