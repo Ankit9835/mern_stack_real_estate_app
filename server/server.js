@@ -5,6 +5,7 @@ import connectDB from "./config/dbConfig.js"
 import morgan from "morgan"
 import cors from "cors"
 import authRoutes from './routes/auth.js'
+import adsRoutes from './routes/ads.js'
 
 const app = express()
 
@@ -14,6 +15,7 @@ app.use(morgan('dev'))
 app.use(cors())
 
 app.use('/api', authRoutes)
+app.use('/api', adsRoutes)
 
 const port = process.env.port || 5000
 

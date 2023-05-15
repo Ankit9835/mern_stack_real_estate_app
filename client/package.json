@@ -12,6 +12,7 @@
     "react-dom": "^18.2.0",
     "react-google-places-autocomplete": "^4.0.1",
     "react-hot-toast": "^2.4.1",
+    "react-image-file-resizer": "^0.4.8",
     "react-places-autocomplete": "^7.3.0",
     "react-router-dom": "^6.11.1",
     "react-scripts": "5.0.1",

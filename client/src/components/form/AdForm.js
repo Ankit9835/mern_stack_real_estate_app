@@ -2,6 +2,8 @@ import React from 'react'
 import { useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete"
 import CurrencyInput from "react-currency-input-field";
+import UploadPhoto from './UploadPhoto';
+
 
 const AdForm = ({action,type}) => {
     const [ad, setAd] = useState({
@@ -20,8 +22,9 @@ const AdForm = ({action,type}) => {
       });
       return (
         <>
-          <div className="mb-3 form-control">
-            <GooglePlacesAutocomplete
+    <div className="mb-3 form-control">
+      <UploadPhoto ad={ad} setAd={setAd}/>
+            {/* <GooglePlacesAutocomplete
               apiKey=''
               apiOptions="au"
               selectProps={{
@@ -31,17 +34,70 @@ const AdForm = ({action,type}) => {
                   setAd({ ...ad, address: value.description });
                 },
               }}
-            />
+            /> */}
 
-    <CurrencyInput
-        placeholder="Enter price"
-        defaultValue={ad.price}
+        <CurrencyInput
+            placeholder="Enter price"
+            defaultValue={ad.price}
+            className="form-control mb-3"
+            onValueChange={(value) => setAd({ ...ad, price: value })}
+          />
+
+            <input
+                type="number"
+                min="0"
+                className="form-control mb-3"
+                placeholder="Enter how many bedrooms"
+                value={ad.bedrooms}
+                onChange={(e) => setAd({ ...ad, bedrooms: e.target.value })}
+              />
+
+<input
+        type="number"
+        min="0"
         className="form-control mb-3"
-        onValueChange={(value) => setAd({ ...ad, price: value })}
+        placeholder="Enter how many bathrooms"
+        value={ad.bathrooms}
+        onChange={(e) => setAd({ ...ad, bathrooms: e.target.value })}
       />
-          </div>
-    <br />
-          <pre>{JSON.stringify(ad, null, 4)}</pre>
+
+      <input
+        type="number"
+        min="0"
+        className="form-control mb-3"
+        placeholder="Enter how many carpark"
+        value={ad.carpark}
+        onChange={(e) => setAd({ ...ad, carpark: e.target.value })}
+      />
+
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Size of land"
+        value={ad.landsize}
+        onChange={(e) => setAd({ ...ad, landsize: e.target.value })}
+      />
+
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Enter title"
+        value={ad.title}
+        onChange={(e) => setAd({ ...ad, title: e.target.value })}
+      />
+
+      <textarea
+        className="form-control mb-3"
+        placeholder="Enter description"
+        value={ad.description}
+        onChange={(e) => setAd({ ...ad, description: e.target.value })}
+      />
+
+      <button className="btn btn-primary">Submit</button>
+      <pre>{JSON.stringify(ad, null, 4)}</pre>
+    </div>
+   
+          
         </>
       );
     }
