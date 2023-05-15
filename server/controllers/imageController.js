@@ -1,4 +1,5 @@
 import S3 from 'aws-sdk/clients/s3.js'
+import { nanoid } from "nanoid";
 
 export const imageUpload = (req,res) => {
     try {
@@ -29,10 +30,11 @@ export const imageUpload = (req,res) => {
 
         AWSS3.upload(params, (err,data) => {
             if(err){
-                console.log(err)
+                console.log('error',err)
                 res.sendStatus(400)
             } else {
-                console.log(data)
+                console.log('uploaded image',data)
+                res.send(data)
             }
         })
 
@@ -40,5 +42,37 @@ export const imageUpload = (req,res) => {
         console.log(err);
         res.json({ error: "Upload failed. Try again." });
       }
+}
+
+export const imageRemove = (req,res) => {
+
+    try {
+
+        const {Bucket,Key} = req.body
+       
+        const SESConfig = {
+            apiVersion: "2010-12-01",
+            accessKeyId: process.env.AWS_ACCESS_KEY,      // should be:  process.env.AWS_ACCESS_ID
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,  
+            region: "ap-southeast-2"
+        }
+    
+        const AWSS3 = new S3(SESConfig)
+    
+        AWSS3.deleteObject({Bucket, Key}, (err, data) => {
+            if (err) {
+                console.log(err);
+                res.sendStatus(400);
+            } else {
+                res.send({ ok: true });
+            }
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+   
+
 }
 

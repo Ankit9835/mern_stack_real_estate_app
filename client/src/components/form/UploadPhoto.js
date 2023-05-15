@@ -1,6 +1,7 @@
 import React from 'react'
 import Resizer from "react-image-file-resizer";
 import axios from "axios";
+import { Avatar } from "antd";
 
 const UploadPhoto = ({ad,setAd}) => {
 
@@ -26,6 +27,7 @@ const UploadPhoto = ({ad,setAd}) => {
                         // console.log("UPLOAD URI => ", uri);
                         const { data } = await axios.post("/upload-image", {
                           image: uri,
+
                         });
                         setAd((prev) => ({
                           ...prev,
@@ -50,6 +52,19 @@ const UploadPhoto = ({ad,setAd}) => {
     }
  }
 
+ const removeImage = async (file) => {
+    const test = window.confirm('Are you sure you want to remove this image')
+    if(!test) return
+    try {
+        setAd({...ad, uploading:true})
+        const {data} = await axios.post('/remove-image', file)
+        setAd({...ad, uploading:false}) 
+    } catch (error) {
+        console.log(error)
+        setAd({...ad,uploading:false})
+    }
+ }
+
   return (
     <>
     <label className="btn btn-secondary mb-4">
@@ -62,6 +77,12 @@ const UploadPhoto = ({ad,setAd}) => {
         hidden
       />
     </label>
+    {ad.photos?.map((file, index) => (<Avatar key={index} src={file?.Location}
+          shape="square"
+          size="46"
+          className="ml-2 mb-4"
+          onClick={() => removeImage(file)}
+          />) )}
   </>
   )
 }
