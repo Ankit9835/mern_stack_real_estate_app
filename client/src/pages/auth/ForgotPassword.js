@@ -19,8 +19,7 @@ const ForgotPassword = () => {
       const response = await axios.post(`/forgot-password`, {email})
       console.log('response',response)
       if(response?.data?.error){
-        toast.error(response.data.error)
-        
+        toast.error(response.data.error) 
       } else {
           setAuth(response.data)
          // localStorage.setItem('auth', JSON.stringify(response.data))
@@ -29,8 +28,7 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       console.log(error)
-      toast.error('Something went wrong')
-      
+      toast.error('Something went wrong')  
     }
   }
   return (

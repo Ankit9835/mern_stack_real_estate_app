@@ -13,7 +13,7 @@ export const welcome = (req,res) => {
 
 const tokenFunction = (req,res,user) => {
     const newToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
-        expiresIn:'10s'
+        expiresIn:'24h'
     })
     const refreshToken = jwt.sign({_id:user._id}, process.env.JWT_SECRET, {
         expiresIn:'7d'
