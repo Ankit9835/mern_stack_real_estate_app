@@ -9,7 +9,7 @@ const AuthProvider = ({children}) => {
         newToken: "",
         refreshToken: "",
       });
-      console.log('auth',auth)
+   //   console.log('auth',auth)
 
       useEffect(() => {
         const fsjs = JSON.parse(localStorage.getItem('auth'))

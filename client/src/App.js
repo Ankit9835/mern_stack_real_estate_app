@@ -13,6 +13,8 @@ import SellHouse from "./pages/user/ad/SellHouse";
 import SellLand from "./pages/user/ad/SellLand";
 import RentHouse from "./pages/user/ad/RentHouse";
 import RentLand from "./pages/user/ad/RentLand";
+import SingleCard from "./components/cards/SingleCard";
+
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
           <Route path="/auth/activate-account/:token" element={<ActivateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/access-account/:token" element={<AccessAccount />} />
+          <Route path="single/ad/:slug" element={<SingleCard />} />
           <Route path="/" element={<PrivateRoute />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="ad/create" element={<AdCreate />} />
@@ -34,6 +37,7 @@ function App() {
             <Route path="ad/create/sell/land" element={<SellLand />} />
             <Route path="ad/create/rent/house" element={<RentHouse />} />
             <Route path="ad/create/rent/land" element={<RentLand />} />
+            
           </Route>
         </Routes>
       </AuthProvider>

@@ -1,23 +1,36 @@
-import React from 'react'
-import { Badge } from "antd";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { IoBedOutline } from "react-icons/io5";
 import { TbBath } from "react-icons/tb";
 import { BiArea } from "react-icons/bi";
+import axios from 'axios';
+import LikeUnlike from '../misc/LikeUnlike';
 
 
-const AdCard = ({ad}) => {
-  function formatNumber(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
+const SingleCard = () => {
+    const params = useParams()
+    const [ad,setAd] = useState({})
+    const {slug} = params
+    console.log(slug)
+    const singleAd = async () => {
+        try {
+            const response  = await axios.get(`/single-ads/${slug}`)
+            console.log('response',response)
+            setAd(response.data.ads)
+        } catch (error) {
+            console.log(error)            
+        }
+    }
 
+    useEffect(() => {
+        singleAd()
+    },[])
+    // function formatNumber(x) {
+    //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    //   }
   return (
-    <div className="col-lg-4 p-4 gx-4 gy-4">
-    <Link to={`single/ad/${ad.slug}`}>
-      <Badge.Ribbon
-        text={`${ad?.type} for ${ad?.action}`}
-        color={`${ad?.action === "Sell" ? "blue" : "red"}`}
-      >
+    <>
+        <div className='container'>
         <div className="card hoverable shadow">
           <img
             src={ad?.photos?.[0]?.Location}
@@ -26,9 +39,11 @@ const AdCard = ({ad}) => {
           />
 
           <div className="card-body">
-            <h3>${formatNumber(ad?.price)}</h3>
+            <h3>{ad?.price}</h3>
+            <br />
             <p className="card-text">{ad?.address}</p>
-
+            <LikeUnlike ad={ad} />
+            <br />
             <p className="card-text d-flex justify-content-between">
                 {ad?.bedrooms ? (
                   <span>
@@ -38,7 +53,7 @@ const AdCard = ({ad}) => {
                   ""
                 )}
 
-                {ad?.bathrooms ? (
+                {slug?.bathrooms ? (
                   <span>
                     <TbBath /> {ad?.bathrooms}
                   </span>
@@ -46,7 +61,7 @@ const AdCard = ({ad}) => {
                   ""
                 )}
 
-                {ad?.landsize ? (
+                {slug?.landsize ? (
                   <span>
                     <BiArea /> {ad?.landsize}
                   </span>
@@ -58,10 +73,10 @@ const AdCard = ({ad}) => {
             {/* <AdFeatures ad={ad} /> */}
           </div>
         </div>
-      </Badge.Ribbon>
-    </Link>
-  </div>
+        </div>
+        
+    </>
   )
 }
 
-export default AdCard
+export default SingleCard
